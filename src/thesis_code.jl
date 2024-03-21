@@ -24,5 +24,7 @@ export flow_surplus
 export SurplusVFI
 export ES
 
+include("helper_functions_dynamics.jl")
+
 
 end
