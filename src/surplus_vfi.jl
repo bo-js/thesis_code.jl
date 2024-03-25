@@ -1,4 +1,4 @@
-function ES(S, Π)
+function ES(S::Array, Π::Matrix)
     ExpS = zeros(size(S))
     for j in 1:length(S[1, 1, :])
         ExpS[:, :, j] = Π * max.(S[:, :, j], 0)
