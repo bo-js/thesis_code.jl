@@ -11,8 +11,11 @@ X = collect(LinRange(trim, 1 - trim, Nx))
 Y = collect(LinRange(trim, 1 - trim, Ny))
 a = collect(LinRange(trim, 1-trim, Nz))
 
-σ = 0.071
-ρ = 0.99
+l = pdf(Beta(β1, β2), X)
+l = l ./ sum(l)
+
+# σ = 0.071
+# ρ = 0.99
 
 Σ = [1 ρ
      ρ 1]
