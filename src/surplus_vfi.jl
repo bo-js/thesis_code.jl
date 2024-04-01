@@ -26,7 +26,7 @@ function SurplusVFI(Z, X, Y, Π; MaxIter = 2000, tol = 10e-8, δ = δ, r = r, p 
 
 end
 
-function H0iter(Z, X, Y, S, l; MaxIter = 2000, tol = 10e-5, δ = δ, s = s, α = α, c0 = c0, c1 = c1, ω = ω)
+function H0iter(Z, X, Y, S, l; MaxIter = 2500, tol = 10e-5, δ = δ, s = s, α = α, c0 = c0, c1 = c1, ω = ω)
     z = Integer((length(Z)+1)/2)
     Sxy = S[z, :, :]
 
@@ -42,7 +42,7 @@ function H0iter(Z, X, Y, S, l; MaxIter = 2000, tol = 10e-5, δ = δ, s = s, α =
         θ = tightness(Jy, L; α = α, c0 = c0, c1 = c1, ω = ω)
         v_y = vacy(Jy, θ; α = α, c0 = c0, c1 = c1, ω = ω)
 
-        next = uh_next(uplus, hplus, v_y, L, Sxy; α = α, ω = ω, s = s)
+        next = uh_next(uplus, hplus, v_y, L, Sxy, l; α = α, ω = ω, s = s)
 
         if maximum(abs, next.h - h0_xy) < tol
             @info "H0 has succesfully converged after $iter iterations."

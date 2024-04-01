@@ -1,5 +1,5 @@
 function u_plus(ux::Vector, hxy::Matrix, Sxy::Matrix; δ::Number = δ)
-   return ux .+ sum(((Sxy[:, j] .< 0) + δ.*(Sxy[:, j] .≥ 0)) .* hxy[:, j] for j in 1:length(Sxy[1, :])) 
+   return ux .+ vec(sum(((Sxy .< 0) + δ.*(Sxy .≥ 0)) .* hxy , dims = 2))
 end
 
 export u_plus
@@ -42,15 +42,12 @@ end
 
 export vacy
 
-function uh_next(u_plus::Vector, h_plus::Matrix, v_y::Vector, L::Number, Sxy::Matrix; α::Number = α, ω::Number = ω, s::Number = s, calc_u = true::Bool)
+function uh_next(u_plus::Vector, h_plus::Matrix, v_y::Vector, L::Number, Sxy::Matrix, l::Vector; α::Number = α, ω::Number = ω, s::Number = s)
 
     V = sum(v_y)
     λ = min(α * L^ω * V^(1 - ω), L, V)/L
     λvV = λ .* v_y ./V
 
-    if calc_u == true
-        u_next = max.(u_plus .* (1 .- sum(λvV[j] .* (Sxy[:, j].≥0) for j in 1:length(v_y))), 0)
-    end
 
     h_next = max.(
         h_plus .* (1 .- sum((s * λvV[jprime]) .* (Sxy[:, jprime] .> Sxy) for jprime in 1:length(v_y))) +
@@ -58,21 +55,19 @@ function uh_next(u_plus::Vector, h_plus::Matrix, v_y::Vector, L::Number, Sxy::Ma
         (u_plus * λvV') .* (Sxy .≥ 0), 0
     )
 
-    if calc_u == true
-        
-        next::NamedTuple = (u = u_next, h = h_next)
+    u_next = vec(l .- sum(h_next, dims = 2))
+
+    next::NamedTuple = (u = u_next, h = h_next)
     
-        return next
-    else
-        return h_next
-    end
+    return next
+    
 end
 
 export uh_next
 
 
 ## Need to get in initial conditions.
-function uh_dynamics_sim(prod::Vector, u0::Vector, h0::Matrix, S::Array; Z = Z, X = X, Y = Y, δ = δ, s = s, α = α, c0 = c0, c1 = c1, ω = ω, p = p)
+function uh_dynamics_sim(prod::Vector, u0::Vector, h0::Matrix, S::Array, l::Vector; Z = Z, X = X, Y = Y, δ = δ, s = s, α = α, c0 = c0, c1 = c1, ω = ω, p = p)
     T = length(prod)
     
     prod_zxy = valadd(Z, X, Y; p = p)
@@ -100,7 +95,7 @@ function uh_dynamics_sim(prod::Vector, u0::Vector, h0::Matrix, S::Array; Z = Z, 
             θ = tightness(Jy, L; α = α, c0 = c0, c1 = c1, ω = ω)
             v_y = vacy(Jy, θ; α = α, c0 = c0, c1 = c1, ω = ω)
     
-            next_zz[zz] = uh_next(uplus, hplus, v_y, L, Sxy; α = α, ω = ω, s = s) 
+            next_zz[zz] = uh_next(uplus, hplus, v_y, L, Sxy, l; α = α, ω = ω, s = s) 
 
             GDP_zz[zz] = sum(prod_zxy[zz, :, :] .* next_zz[zz].h)/(1 - sum(next_zz[zz].u))
 
@@ -116,6 +111,7 @@ function uh_dynamics_sim(prod::Vector, u0::Vector, h0::Matrix, S::Array; Z = Z, 
     end
 
     return Dict(:uxt => uxt, :hxyt => hxyt, :statet => statet, :GDP_zt => GDP_zt)
+
 end
 
 export uh_dynamics_sim
