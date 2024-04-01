@@ -7,7 +7,7 @@ function valadd(Z::Vector, X::Vector, Y::Vector; p::Vector = p)
 end
 
 function homeprod(X::Vector, Y::Vector; p::Vector = p)    
-    return [0.7 * maximum(valadd([x], Y, [1]; p = p)) for x in X]
+    return [0.7 * maximum(p ⋅ [1, x, y, x^2, y^2, x*y] for y in Y) for x in X]
 end
 
 function flow_surplus(Z, X, Y; p::Vector = p)
