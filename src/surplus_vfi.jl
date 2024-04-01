@@ -42,16 +42,17 @@ function H0iter(Z, X, Y, S, l; MaxIter = 2000, tol = 10e-5, δ = δ, s = s, α =
         θ = tightness(Jy, L; α = α, c0 = c0, c1 = c1, ω = ω)
         v_y = vacy(Jy, θ; α = α, c0 = c0, c1 = c1, ω = ω)
 
-        h0_next = uh_next(uplus, hplus, v_y, L, Sxy; α = α, ω = ω, s = s, calc_u = false)
+        next = uh_next(uplus, hplus, v_y, L, Sxy; α = α, ω = ω, s = s)
 
-        if maximum(abs, h0_next - h0_xy) < tol
+        if maximum(abs, next.h - h0_xy) < tol
             @info "H0 has succesfully converged after $iter iterations."
-            return h0_next
+            return next
         elseif iter == MaxIter
             @warn "After $iter iterations, the error remains larger than $tol."
-            return h0_next
+            return next
         end
-        h0_xy = h0_next
+        h0_xy = next.h
+        u0_x = next.u
     end
 
 end
