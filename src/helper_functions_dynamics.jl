@@ -72,40 +72,50 @@ export uh_next
 
 
 ## Need to get in initial conditions.
-function uh_dynamics_sim(prod::Vector, u0::Vector, h0::Matrix, S::Array; Z = Z, X = X, Y = Y)
+function uh_dynamics_sim(prod::Vector, u0::Vector, h0::Matrix, S::Array; Z = Z, X = X, Y = Y, δ = δ, s = s, α = α, c0 = c0, c1 = c1, ω = ω, p = p)
     T = length(prod)
     
     prod_zxy = valadd(Z, X, Y; p = p)
-    GDP_z = zeros(Nz)
-    uh_zz = zeros(Nz)
-    statet = zeros(T)
+    GDP_zz = zeros(length(Z))
+    next_zz = Vector{NamedTuple{}}(undef, length(Z))
+    statet = Vector{Integer}(undef, T)
     GDP_zt = zeros(T)
 
-    uxt = zeros(T, Nx)
-    hxyt = zeros(T, Nx, Ny)
+    uxt = zeros(T, length(X))
+    hxyt = zeros(T, length(X), length(Y))
 
     uxt[1, :] = u0
     hxyt[1, :, :] = h0
+    statet[1] = Integer((length(Z) + 1)/2)
 
     for t in 2:T
         
-        for zz in 1:Nz
-            uh_zz[zz] = uh_next(uxt, hxyt, S, zz, t - 1)
-            
-            GDP_z[zz] = sum(prod_zxy[zz, :, :] .* uh_zz[zz].h_next)/(1 - sum(uh_zz[zz].u_next))
+        for zz in 1:length(Z)
+            Sxy = S[zz, :, :]
+
+            uplus = u_plus(uxt[t-1, :], hxyt[t-1, :, :], Sxy; δ = δ)
+            hplus = h_plus(hxyt[t-1, :, :], Sxy; δ = δ)
+            L = LT(uplus, hplus; s = s)
+            Jy = J(uplus, hplus, L, Sxy; s = s)
+            θ = tightness(Jy, L; α = α, c0 = c0, c1 = c1, ω = ω)
+            v_y = vacy(Jy, θ; α = α, c0 = c0, c1 = c1, ω = ω)
+    
+            next_zz[zz] = uh_next(uplus, hplus, v_y, L, Sxy; α = α, ω = ω, s = s) 
+
+            GDP_zz[zz] = sum(prod_zxy[zz, :, :] .* next_zz[zz].h)/(1 - sum(next_zz[zz].u))
 
         end
 
-        statet[t] = argmin(abs.(13 .* GDP_z .- prod[t]))
-        next = uh_zz[statet[t]]
-        GDP_zt[t] = GDP_z[state[t]]
+        statet[t] = argmin(abs.(13 .* GDP_zz .- prod[t]))
+        next = next_zz[statet[t]]
+        GDP_zt[t] = GDP_zz[statet[t]]
 
-        uxt[1, :] = next.u_next
-        hxyt[1, :, :] = next.h_next
+        uxt[t, :] = next.u
+        hxyt[t, :, :] = next.h
 
     end
 
-    return Dict(uxt => :uxt, hxyt => :hxyt, statet => :statet, GDP_zt => :GDP_zt)
+    return Dict(:uxt => uxt, :hxyt => hxyt, :statet => statet, :GDP_zt => GDP_zt)
 end
 
 export uh_dynamics_sim
