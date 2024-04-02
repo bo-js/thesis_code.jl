@@ -19,8 +19,10 @@ export LT
 function J(u_plus::Vector, h_plus::Matrix, L::Number, Sxy::Matrix; s::Number = s)
     
     return (sum(u_plus[i] .* max.(Sxy[i, :], 0)./L for i in 1:length(u_plus)) 
-        .+ sum(s .* h_plus[i, jprime] .* max.(Sxy[i, :] .- Sxy[i, jprime], 0)./L 
-                for i in 1:length(u_plus), jprime in 1:length(h_plus[1, :])))
+        
+            .+ sum(s .* h_plus[i, jprime] .* max.(Sxy[i, :] .- Sxy[i, jprime], 0)./L 
+                
+                    for i in 1:length(u_plus), jprime in 1:length(h_plus[1, :])))
     
 end
 
@@ -49,13 +51,13 @@ function uh_next(u_plus::Vector, h_plus::Matrix, v_y::Vector, L::Number, Sxy::Ma
     λvV = λ .* v_y ./V
 
 
-    h_next = max.(
-        h_plus .* (1 .- sum((s * λvV[jprime]) .* (Sxy[:, jprime] .> Sxy) for jprime in 1:length(v_y))) +
-        sum(h_plus[:, jprime] .* s .* λvV .* (Sxy .> Sxy[:, jprime]) for jprime in 1:length(v_y)) +
-        (u_plus * λvV') .* (Sxy .≥ 0), 0
+    h_next = (
+        h_plus .* (1 .- sum(s .* λvV[jprime] .* (Sxy[:, jprime] .> Sxy) for jprime in 1:length(v_y))) +
+        sum(s .* (h_plus[:, jprime] * λvV') .* (Sxy .> Sxy[:, jprime]) for jprime in 1:length(v_y)) + 
+       ( u_plus * λvV') .* (Sxy .≥ 0)
     )
 
-    u_next = vec(l .- sum(h_next, dims = 2))
+    u_next = u_plus .* (1 .- sum(λvV[j] .* (Sxy[:, j] .≥ 0) for j in 1:length(v_y)))
 
     next::NamedTuple = (u = u_next, h = h_next)
     

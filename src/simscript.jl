@@ -4,7 +4,7 @@ using thesis_code
 ## Interest Rate
 r = 0.05
 ## Matching
-α = 0.097
+α = 0.497
 ω = 1/2
 ## Search Intensity
 s = 0.027
@@ -15,7 +15,7 @@ c1 = 0.084
 δ = 0.013
 ## Productivity Shocks
 σ = 0.071
-ρ = 0.99
+ρ = 0.999
 ## Worker Heterogeneity
 β1 = 2.148
 β2 = 12.001
