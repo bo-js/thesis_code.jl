@@ -1,8 +1,10 @@
 using thesis_code
+using Distributions
+using Copulas
 
 # Parameters
 ## Interest Rate
-r = 0.05
+r = 0.05/52
 ## Matching
 α = 0.497
 ω = 1/2
@@ -23,7 +25,12 @@ c1 = 0.084
 p = [0.003, 2.053, -0.140, 8.035, -1.907, 6.596]
 
 # Define Grids, Distributions of Workers, and Productivity Markov Process
-include("grids.jl")
+grd = grids(; β1 = β1, β2 = β2, ρ = ρ, σ = σ)
+X = grd[:X]
+Y = grd[:Y]
+Z = grd[:Z]
+Π = grd[:Π]
+l = grd[:l]
 
 # Find Surplus Function
 S = SurplusVFI(Z, X, Y, Π; δ = δ, r = r)
