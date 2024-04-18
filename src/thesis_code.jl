@@ -1,6 +1,6 @@
 module thesis_code
 
-using LinearAlgebra
+using LinearAlgebra, Distributions, Copulas
 
 function valadd(Z::Vector, X::Vector, Y::Vector; p::Vector = p)
     return [z*(p ⋅ [1, x, y, x^2, y^2, x * y]) for z in Z, x in X, y in Y]
@@ -10,10 +10,16 @@ function homeprod(X::Vector, Y::Vector; p::Vector = p)
     return [0.7 * maximum(p ⋅ [1, x, y, x^2, y^2, x*y] for y in Y) for x in X]
 end
 
-function flow_surplus(Z, X, Y; p::Vector = p)
+function flow_surplus(Z::Vector, X::Vector, Y::Vector; p::Vector = p)
     va = valadd(Z, X, Y; p = p)
     b = homeprod(X, Y; p = p)
     return [va[w, i, j] - b[i] for  w in 1:length(Z), i in 1:length(X), j in 1:length(Y)]
+end
+
+function flow_surplus(Z::Vector, X::Vector, Y, subsidy::Array ; p::Vector = p)
+    va = valadd(Z, X, Y; p = p)
+    b = homeprod(X, Y; p = p)
+    return [subsidy[w, i, j] + va[w, i, j] - b[i] for w in 1:length(Z), i in 1:length(X), j in 1:length(Y)]
 end
 
 include("surplus_vfi.jl")
