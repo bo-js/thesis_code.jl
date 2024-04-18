@@ -16,10 +16,8 @@ function flow_surplus(Z::Vector, X::Vector, Y::Vector; p::Vector = p)
     return [va[w, i, j] - b[i] for  w in 1:length(Z), i in 1:length(X), j in 1:length(Y)]
 end
 
-function flow_surplus(Z::Vector, X::Vector, Y, subsidy::Array ; p::Vector = p)
-    va = valadd(Z, X, Y; p = p)
-    b = homeprod(X, Y; p = p)
-    return [subsidy[w, i, j] + va[w, i, j] - b[i] for w in 1:length(Z), i in 1:length(X), j in 1:length(Y)]
+function flow_surplus(va::Array, b::Vector)
+    return [va[w, i, j] - b[i] for w in 1:length(va[:, 1, 1]), i in 1:length(b), j in 1:length(va[1, 1, :])]
 end
 
 include("surplus_vfi.jl")
