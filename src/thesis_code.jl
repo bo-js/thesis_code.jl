@@ -39,4 +39,6 @@ include("sim_draws.jl")
 
 include("params_default.jl")
 
+include("optCrit.jl")
+
 end

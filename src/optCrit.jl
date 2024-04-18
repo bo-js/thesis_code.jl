@@ -1,5 +1,3 @@
-using thesis_code
-
 function optCrit(g, τ, grid::Dict, params::Dict; T = 5000, burn = 1000, draw = rand(burn+T, 1),  r = 0.05/52)
     
     # Get Params
@@ -26,3 +24,5 @@ function optCrit(g, τ, grid::Dict, params::Dict; T = 5000, burn = 1000, draw = 
 
     return (c = crit, d = deficit)
 end
+
+export optCrit
