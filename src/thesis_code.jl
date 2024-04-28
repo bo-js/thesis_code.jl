@@ -10,6 +10,10 @@ function homeprod(X::Vector, Y::Vector; p::Vector = p)
     return [0.7 * maximum(p ⋅ [1, x, y, x^2, y^2, x*y] for y in Y) for x in X]
 end
 
+function uipayments(X::Vector, Y::Vector, ui; p::Vector = p)
+    return [ui * maximum(p ⋅ [1, x, y, x^2, y^2, x*y] for y in Y) for x in X]
+end
+
 function flow_surplus(Z::Vector, X::Vector, Y::Vector; p::Vector = p)
     va = valadd(Z, X, Y; p = p)
     b = homeprod(X, Y; p = p)
@@ -22,6 +26,7 @@ end
 
 include("surplus_vfi.jl")
 
+export uipayments
 export valadd
 export homeprod
 export flow_surplus

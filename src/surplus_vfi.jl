@@ -26,7 +26,7 @@ function SurplusVFI(Z::Vector, X::Vector, Y::Vector, Π::Matrix; MaxIter = 2000,
 
 end
 
-function SurplusVFI(flowsurp::Array, Π; MaxIter = 2000, tol = 10e-8, δ = δ, r = r, p = [0.003, 2.053, -0.140, 8.035, -1.907, 6.596])
+function SurplusVFI(flowsurp::Array, Π; MaxIter = 5000, tol = 10e-8, δ = δ, r = r, p = [0.003, 2.053, -0.140, 8.035, -1.907, 6.596])
     
     S = ((1 + r)/(r + δ)) .* flowsurp
 
@@ -45,7 +45,7 @@ function SurplusVFI(flowsurp::Array, Π; MaxIter = 2000, tol = 10e-8, δ = δ, r
 
 end
 
-function H0iter(Z, X, Y, S, l; MaxIter = 2500, tol = 10e-5, δ = δ, s = s, α = α, c0 = c0, c1 = c1, ω = ω)
+function H0iter(Z, X, Y, S, l; MaxIter = 5000, tol = 10e-5, δ = δ, s = s, α = α, c0 = c0, c1 = c1, ω = ω)
     z = Integer((length(Z)+1)/2)
     Sxy = S[z, :, :]
 

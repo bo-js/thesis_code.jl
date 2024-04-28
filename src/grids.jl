@@ -1,9 +1,9 @@
 
-function grids(; Nx = 21, Ny = 21, Nz = 51, params::Dict = params_default())
-     β1 = params[:β1] 
-     β2 = params[:β2] 
-     ρ = params[:ρ] 
-     σ = params[:σ]
+function grids(; Nx = 21, Ny = 21, Nz = 51, params::NamedTuple = params_default())
+     β1 = params.β1 
+     β2 = params.β2 
+     ρ = params.ρ
+     σ = params.σ
      trim = 0.01
 
      X = collect(LinRange(trim, 1 - trim, Nx))
