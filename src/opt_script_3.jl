@@ -1,6 +1,6 @@
 using Distributed
 
-addprocs(8)
+addprocs(4)
 
 @everywhere using thesis_code, BlackBoxOptim, Random
 
@@ -14,7 +14,11 @@ addprocs(8)
 
 @everywhere draw = rand(T+burn)
 
-@everywhere origfitness(x::Vector{Float64}) =  - (optCrit(0,0,0,0,x[1], x[2];  params = params, T = T, burn = burn, draw = draw, unconstr = false).c)
+@everywhere S0 = SurplusVFI(grid[:Z], grid[:X], grid[:Y], grid[:Π]; δ = params.δ, r = 0.05/52, p = params.p)
+@everywhere init = H0iter(grid[:Z], grid[:X], grid[:Y], S0, grid[:l]; 
+    MaxIter = 5000, tol = 10e-5, δ = params.δ, s = params.s, α = params.α, c0 = params.c0, c1 = params.c1, ω = params.ω)
+
+@everywhere origfitness(x::Vector{Float64}) =  - (optCrit(0,0,0,0,x[1], x[2], init;  params = params, T = T, burn = burn, draw = draw, unconstr = false).c)
 
 @everywhere Dim = 2
 @everywhere lowbounds = [-2.0, 0.0]
@@ -22,7 +26,7 @@ addprocs(8)
 
 @everywhere SearchRange = [(lowbounds[i], highbounds[i]) for i in 1:Dim]
 
-@everywhere constraint(x::Vector{Float64}) = max(0, optCrit(0,0,0,0,x[1], x[2]; params = params, T = T, burn = burn, draw = draw, unconstr = false).d)
+@everywhere constraint(x::Vector{Float64}) = max(0, optCrit(0,0,0,0,x[1], x[2], init; params = params, T = T, burn = burn, draw = draw, unconstr = false).d)
 
 @everywhere K = 1e3
 
