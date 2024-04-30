@@ -1,7 +1,7 @@
-using Optimization, OptimizationNLopt, thesis_code, Random
+using thesis_code, Random, Optimization, OptimizationNLopt
 
-T = 50000
-burn = 5000
+T = 9000
+burn = 1000
 
 params = params_default()
 grid = grids()
@@ -12,10 +12,26 @@ draw = rand(T+burn)
 
 x0 = [0.0, 0.0]
 
-f = OptimizationFunction((pol, params) -> - optCrit(0, 0, 0, 0, pol[1], pol[2]; params = params, T = T, burn = burn, draw = draw, unconstr = true))
-prob = Optimization.OptimizationProblem(f, x0, params, lb = [-Inf, 0.], ub = [ Inf, 1])
+S0 = SurplusVFI(grid[:Z], grid[:X], grid[:Y], grid[:Π]; δ = params.δ, r = 0.05/52, p = params.p)
+init = H0iter(grid[:Z], grid[:X], grid[:Y], S0, grid[:l]; 
+    MaxIter = 5000, tol = 10e-5, δ = params.δ, s = params.s, α = params.α, c0 = params.c0, c1 = params.c1, ω = params.ω)
 
-sol = solve(prob, NLopt.LN_COBYLA())
+f = OptimizationFunction((pol, params) -> - optCrit(pol[1], pol[2], init; params = params, T = T, burn = burn, draw = draw, unconstr = true))
+prob = Optimization.OptimizationProblem(f, x0, params, lb = [-1.0, 0.0], ub = [1.0, 1.0])
+
+lossvals = zeros(0)
+ui_guesses = zeros(0)
+tax_guesses = zeros(0)
+
+function callback(state, loss_val)
+    display(loss_val)
+    push!(ui_guesses, state[1])
+    push!(tax_guesses, state[2])
+    push!(lossvals, loss_val)
+    return false
+end
+
+sol = solve(prob, NLopt.G_MLSL_LDS(); local_method = NLopt.LN_SBPLX(), callback = callback)
 
 
 # model = Model(NLopt.Optimizer)
@@ -28,11 +44,8 @@ sol = solve(prob, NLopt.LN_COBYLA())
 # @variable(model, ui)
 # @variable(model, 1 >= τ >= 0)
 
-# fcrit = (x1, x2, x3, x4, ui, τ) -> optCrit(x1, x2, x3, x4, ui, τ; T = T, burn = burn, draw = draw, unconstr = false).c
 
-# register(model, :fcrit, 6, fcrit, autodiff=true)
-
-# @NLobjective(model, Max, optCrit(g1, g2, g3, g4, ui, τ; T = T, burn = burn, draw = draw))
+# @NLobjective(model, Max, optCrit(g1, g2, g3, g4, ui, τ, init; T = T, burn = burn, draw = draw))
 
 # set_start_value(g1, 0)
 # set_start_value(g2, 0)
@@ -47,15 +60,9 @@ sol = solve(prob, NLopt.LN_COBYLA())
 
 # opt = Opt(:LN_COBYLA, 6)
 
-# function fcrit(pol::Vector) 
-#     crit =  - optCrit(pol[1], pol[2], pol[3], pol[4], pol[5], pol[6]; T = T, burn = burn, draw = draw, unconstr = false).c
-#     return crit
-# end
+# fcrit = pol ->  - optCrit(pol[1], pol[2], pol[3], pol[4], pol[5], pol[6], init; T = T, burn = burn, draw = draw, unconstr = false).c
 
-# function fconstr(pol::Vector) 
-#     def = optCrit(pol[1], pol[2], pol[3], pol[4], pol[5], pol[6]; T = T, burn = burn, draw = draw, unconstr = false).d
-#     return def
-# end
+# fconstr = pol -> optCrit(pol[1], pol[2], pol[3], pol[4], pol[5], pol[6], init; T = T, burn = burn, draw = draw, unconstr = false).d
 
 # opt.lower_bounds = [-Inf, -Inf, -Inf, -Inf, -Inf, 0.]
 # opt.upper_bounds = [Inf, Inf, Inf, Inf, Inf, 1]
