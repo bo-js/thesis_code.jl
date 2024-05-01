@@ -1,5 +1,5 @@
 
-function sim_draws(grd::Dict, params::NamedTuple; T::Integer = 5000, burn = 1000, draw = rand(burn+T, 1),  r = 0.05/52)
+function sim_draws(grd::Dict, params::NamedTuple; threshold = 0, T::Integer = 5000, burn = 1000, draw = rand(burn+T, 1),  r = 0.05/52)
 
     α = params.α
     ω = params.ω
@@ -16,7 +16,7 @@ function sim_draws(grd::Dict, params::NamedTuple; T::Integer = 5000, burn = 1000
     l = grd[:l]
 
     # Find Surplus Function and Initial Conditions
-    S = SurplusVFI(Z, X, Y, Π; δ = δ, r = r)
+    S = SurplusVFI(Z, X, Y, Π;threshold = threshold, δ = δ, r = r)
     init = H0iter(Z, X, Y, S, l; δ = δ, s=s, α = α, c0 = c0, c1 = c1, ω = ω)
 
     statet = Vector{Integer}(undef, T+burn)
@@ -54,7 +54,7 @@ function sim_draws(grd::Dict, params::NamedTuple; T::Integer = 5000, burn = 1000
 
 end
 
-function sim_draws(grd::Dict, params::NamedTuple, flowsurp::Array; T::Integer = 5000, burn = 1000, draw = rand(burn+T, 1),  r = 0.05/52)
+function sim_draws(grd::Dict, params::NamedTuple, flowsurp::Array; threshold = 0, T::Integer = 5000, burn = 1000, draw = rand(burn+T, 1),  r = 0.05/52)
 
     α = params.α
     ω = params.ω
@@ -71,7 +71,7 @@ function sim_draws(grd::Dict, params::NamedTuple, flowsurp::Array; T::Integer = 
     l = grd[:l]
 
     # Find Surplus Function and Initial Conditions
-    S = SurplusVFI(flowsurp, Π; δ = δ, r = r)
+    S = SurplusVFI(flowsurp, Π; δ = δ, r = r, threshold = threshold)
 
     init = H0iter(Z, X, Y, S, l; δ = δ, s=s, α = α, c0 = c0, c1 = c1, ω = ω)
 
@@ -108,7 +108,7 @@ function sim_draws(grd::Dict, params::NamedTuple, flowsurp::Array; T::Integer = 
 
 end
 
-function sim_draws(grd::Dict, params::NamedTuple, flowsurp::Array, init::NamedTuple; T::Integer = 5000, burn = 1000, draw = rand(burn+T, 1),  r = 0.05/52)
+function sim_draws(grd::Dict, params::NamedTuple, flowsurp::Array, init::NamedTuple; threshold = 0, T::Integer = 5000, burn = 1000, draw = rand(burn+T, 1),  r = 0.05/52)
 
     α = params.α
     ω = params.ω
@@ -125,7 +125,7 @@ function sim_draws(grd::Dict, params::NamedTuple, flowsurp::Array, init::NamedTu
     l = grd[:l]
 
     # Find Surplus Function and Initial Conditions
-    S = SurplusVFI(flowsurp, Π; δ = δ, r = r)
+    S = SurplusVFI(flowsurp, Π; threshold = threshold, δ = δ, r = r)
 
     statet = Vector{Integer}(undef, T+burn)
     uxt = zeros(T+burn, length(X))
