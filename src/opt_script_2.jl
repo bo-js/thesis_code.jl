@@ -1,5 +1,5 @@
 ## SETUP
-using thesis_code, Random, Optimization, OptimizationNLopt
+using thesis_code, Random, Optimization, OptimizationNLopt, DelimitedFiles
 
 T = 9000
 burn = 1000
@@ -34,7 +34,7 @@ function callback(state, loss_val)
 end
 
 sol = solve(prob, NLopt.G_MLSL_LDS(); local_method = NLopt.LN_SBPLX(), callback = callback, maxeval = 3000)
-
+writedlm("output/optui.txt",sol.u)
 ## UI with Threshold
 x0 = [0.0,0.0, 0.0]
 
@@ -56,7 +56,7 @@ function callback2(state, loss_val)
 end
 
 sol2 = solve(prob2, NLopt.G_MLSL_LDS(); local_method = NLopt.LN_SBPLX(), callback = callback2, maxeval = 3000)
-
+writedlm("output/optui_threshold.txt", sol2.u)
 
 ## Subsidy Only
 x0 = [0.0,0.0,0.0,0.0,0.0]
@@ -83,6 +83,7 @@ function callback3(state, loss_val)
 end
 
 sol3 = solve(prob3, NLopt.G_MLSL_LDS(); local_method = NLopt.LN_SBPLX(), callback = callback3, maxeval = 3000)
+writedlm("output/optsub.txt", sol3)
 
 ## Subsity and UI
 x0 = [0.0,0.0,0.0,0.0,0.0,0.0]
@@ -105,9 +106,10 @@ function callback4(state, loss_val)
     push!(pol3_guesses_full, state[3])
     push!(pol4_guesses_full, state[4])
     push!(ui_guesses4, state[5])
-    push!(tax_guesses4, state[5])
+    push!(tax_guesses4, state[6])
     push!(lossvals4, loss_val)
     return false
 end
 
 sol4 = solve(prob4, NLopt.G_MLSL_LDS(); local_method = NLopt.LN_SBPLX(), callback = callback4, maxeval = 3000)
+writedlm("output/optsub_ui.txt", sol4.u)
