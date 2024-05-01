@@ -39,7 +39,7 @@ writedlm("output/optui.txt",sol.u)
 x0 = [0.0,0.0, 0.0]
 
 f2 = OptimizationFunction((pol, params) -> - optCrit(pol[1], pol[2], init;threshold = pol[3], params = params, T = T, burn = burn, draw = draw, unconstr = true))
-prob2 = Optimization.OptimizationProblem(f, x0, params, lb = [-1.0, 0.0, -5.0], ub = [1.0, 1.0, 1.0])
+prob2 = Optimization.OptimizationProblem(f2, x0, params, lb = [-1.0, 0.0, -5.0], ub = [1.0, 1.0, 1.0])
 
 lossvals2 = zeros(0)
 ui_guesses2 = zeros(0)
@@ -62,7 +62,7 @@ writedlm("output/optui_threshold.txt", sol2.u)
 x0 = [0.0,0.0,0.0,0.0,0.0]
 
 f3 = OptimizationFunction((pol, params) -> - optCrit(pol[1], pol[2], pol[3], pol[4], 0, pol[5], init; params = params, T = T, burn = burn, draw = draw, unconstr = true))
-prob3 = Optimization.OptimizationProblem(f, x0, params, lb = [-10.0, -5.0, -5.0, -5.0, 0.0], ub = [10.0, 5.0, 5.0, 5.0, 1.0])
+prob3 = Optimization.OptimizationProblem(f3, x0, params, lb = [-10.0, -5.0, -5.0, -5.0, 0.0], ub = [10.0, 5.0, 5.0, 5.0, 1.0])
 
 lossvals3 = zeros(0)
 pol1_guesses = zeros(0)
@@ -89,7 +89,7 @@ writedlm("output/optsub.txt", sol3)
 x0 = [0.0,0.0,0.0,0.0,0.0,0.0]
 
 f4 = OptimizationFunction((pol, params) -> - optCrit(pol[1], pol[2], pol[3], pol[4], pol[5], pol[6], init; params = params, T = T, burn = burn, draw = draw, unconstr = true))
-prob4 = Optimization.OptimizationProblem(f, x0, params, lb = [-10.0, -5.0, -5.0, -5.0, -1.0, 0.0], ub = [10.0, 5.0, 5.0, 5.0, 1.0, 1.0])
+prob4 = Optimization.OptimizationProblem(f4, x0, params, lb = [-10.0, -5.0, -5.0, -5.0, -1.0, 0.0], ub = [10.0, 5.0, 5.0, 5.0, 1.0, 1.0])
 
 lossvals4 = zeros(0)
 pol1_guesses_full = zeros(0)
