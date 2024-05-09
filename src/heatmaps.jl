@@ -13,8 +13,8 @@ end
 
 sub = parse.(Float64, readlines("output/optsub.txt"))
 
-head_sub(sub)
+heat_sub(sub)
 
 sub_ui = parse.(Float64, readlines("output/optsub_ui.txt"))
 
-head_sub(sub_ui)
+heat_sub(sub_ui)

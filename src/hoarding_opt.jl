@@ -1,4 +1,4 @@
-using thesis_code, Random, Optim, DelimitedFiles
+using thesis_code, Random, Optimization, OptimizationNLopt, DelimitedFiles
 
 T = 9000
 burn = 1000
@@ -20,11 +20,11 @@ init = H0iter(grid[:Z], grid[:X], grid[:Y], S0, grid[:l];
 
 function HoardingCrit(thresholdsZ, params)
     thresholdszxy = [thresholdsZ[w] for w in 1:length(Z), i in 1:length(X), j in 1:length(Y)]
-    crit = - optCrit(0,0, init; grid = grid, params = params, draw = draw, T = T, burn = burn, unconstr = true, threshold = thresholdszxy)
+    crit = - optCrit(thresholdszxy, init; grid = grid, params = params, draw = draw, T = T, burn = burn, unconstr = true)
     return crit
 end
 x0 = zeros(Float64, length(Z))
-func = OptimizationFunction(HoardingCrit)
+func = Optimization.OptimizationFunction(HoardingCrit)
 
 lower = zeros(Float64, length(Z))
 lower .= -10.0
@@ -43,3 +43,4 @@ end
 
 sol_hoarding = solve(optHoarding, NLopt.G_MLSL_LDS(); local_method = NLopt.LN_SBPLX(), callback = callbackhoarding, maxeval = 3000)
 writedlm("output/opthoarding.txt", sol_hoarding.u)
+

@@ -6,6 +6,14 @@ function ES(S::Array, Π::Matrix; threshold = 0)
     return ExpS
 end
 
+function ES(S::Array, Π::Matrix, thresholds::Array)
+    ExpS = zeros(size(S))
+    for j in 1:length(S[1, 1, :])
+        ExpS[:, :, j] = Π * max.(S[:, :, j], thresholds[:, :, j])
+    end
+    return ExpS
+end
+
 function SurplusVFI(Z::Vector, X::Vector, Y::Vector, Π::Matrix; threshold = 0, MaxIter = 2000, tol = 10e-8, δ = δ, r = r, p = [0.003, 2.053, -0.140, 8.035, -1.907, 6.596])
     
     s = flow_surplus(Z, X, Y, p = p)
@@ -32,6 +40,25 @@ function SurplusVFI(flowsurp::Array, Π;threshold = 0, MaxIter = 5000, tol = 10e
 
     for iter in 1:MaxIter
         S_next = flowsurp + ((1 - δ)/(1 + r)) * ES(S, Π; threshold = threshold)
+        
+        if maximum(abs, S_next - S) < tol
+            @info "The surplus function has succesfully converged after $iter iterations."
+            return S_next
+        elseif iter == MaxIter
+            @warn "After $iter iterations, the surplus function error remains larger than $tol."
+            return S_next
+        end
+        S = S_next
+    end
+
+end
+
+function SurplusVFI(flowsurp::Array, Π, thresholds; MaxIter = 5000, tol = 10e-8, δ = δ, r = r, p = [0.003, 2.053, -0.140, 8.035, -1.907, 6.596])
+    
+    S = ((1 + r)/(r + δ)) .* flowsurp
+
+    for iter in 1:MaxIter
+        S_next = flowsurp + ((1 - δ)/(1 + r)) * ES(S, Π, thresholds)
         
         if maximum(abs, S_next - S) < tol
             @info "The surplus function has succesfully converged after $iter iterations."

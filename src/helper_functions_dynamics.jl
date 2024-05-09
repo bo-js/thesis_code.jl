@@ -18,7 +18,7 @@ export LT
 
 function J(u_plus::Vector, h_plus::Matrix, L::Number, Sxy::Matrix; s::Number = s)
     
-    return (sum(u_plus[i] .* max.(Sxy[i, :], 0)./L for i in 1:length(u_plus)) 
+    return max.(0, sum(u_plus[i] .* max.(Sxy[i, :], 0)./L for i in 1:length(u_plus)) 
         
             .+ sum(s .* h_plus[i, jprime] .* max.(Sxy[i, :] .- Sxy[i, jprime], 0)./L 
                 
@@ -30,7 +30,7 @@ export J
 
 function tightness(Jy::Vector, L::Number; α::Number = α, c0::Number = c0, c1::Number = c1, ω::Number = ω)
     
-    return (sum((α * Jy[j]/c0)^(1/c1) for j in 1:length(Jy))/L)^(c1/(c1 + ω))
+    return ((1/L) * sum((α .* Jy[j]/c0)^(1/c1) for j in 1:length(Jy)))^(c1/(c1 + ω))
 
 end
 
@@ -38,7 +38,7 @@ export tightness
 
 function vacy(Jy::Vector, θ::Number; α::Number = α, c0::Number = c0, c1 = c1, ω = ω)
     
-    return ((α/(c0 * θ^ω)) .* Jy).^(1/c1)
+    return ((α/(θ^ω)) .* (Jy./c0)).^(1/c1)
 
 end
 
@@ -47,7 +47,9 @@ export vacy
 function uh_next(u_plus::Vector, h_plus::Matrix, v_y::Vector, L::Number, Sxy::Matrix, l::Vector; α::Number = α, ω::Number = ω, s::Number = s)
 
     V = sum(v_y)
-    λ = min(α * L^ω * V^(1 - ω), L, V)/L
+    
+    λ = min(L, V, (α * L^ω * V^(1 - ω)))/L
+    
     λvV = λ .* v_y ./V
 
 
